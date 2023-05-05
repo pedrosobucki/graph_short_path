@@ -44,16 +44,27 @@ char *get_string(FILE *stream) {
   return buf;
 }
 
-#define BUZZ_SIZE 1024
-
 void main() {
-  char *str;
-  int linenum = 0;
+  char c;
+  int count = 0;
 
-  FILE * fin = fopen("./test_cases/caso01.txt", "r");
+  FILE *stream = fopen("./test_cases/caso01.txt", "r");
 
-  while ((str = get_string(fin)) != NULL) {
-    printf("%d--\t%s\n",linenum++, str);
-    free(str);
+  int i = 0;
+
+  int h;
+  fscanf (stream, "%d", &h);
+  int w;
+  fscanf (stream, "%d", &w);
+
+  printf("\nheight: %d\nwidth: %d\n",h,w);
+
+  while ((c = fgetc(stream)) != EOF) {
+    printf("%c", c);
+    count++;
   }
+
+  fclose(stream);
+
+  printf("\n\ncount: %d", count);
 }
