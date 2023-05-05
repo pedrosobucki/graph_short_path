@@ -46,25 +46,32 @@ char *get_string(FILE *stream) {
 
 void main() {
   char c;
-  int count = 0;
+  int cc, hc, wc = 0;
 
   FILE *stream = fopen("./test_cases/caso01.txt", "r");
 
-  int i = 0;
-
-  int h;
+  int h, w;
   fscanf (stream, "%d", &h);
-  int w;
   fscanf (stream, "%d", &w);
 
   printf("\nheight: %d\nwidth: %d\n",h,w);
 
-  while ((c = fgetc(stream)) != EOF) {
+  fgetc(stream);
+  printf("%d - ", hc);
+
+  while (hc <= h) {
+    c = fgetc(stream);
     printf("%c", c);
-    count++;
+
+    if (c == '\n' || c == '\r') {
+      hc++;
+      printf("%d - ", hc);
+    }
+
+    cc++;
   }
 
   fclose(stream);
 
-  printf("\n\ncount: %d", count);
+  printf("\n\ncount: %d", cc);
 }
