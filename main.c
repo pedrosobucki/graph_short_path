@@ -5,7 +5,7 @@
 
 void main(void) {
   char c;
-  int cc, hc, wc = 0;
+  int cc, row, col = 0;
 
   FILE *stream = fopen("./test_cases/caso01.txt", "r");
 
@@ -13,24 +13,39 @@ void main(void) {
   fscanf (stream, "%d", &h);
   fscanf (stream, "%d", &w);
 
-  printf("\nheight: %d\nwidth: %d\n",h,w);
+  char map[h][w];
 
-  c = fgetc(stream);
-  printf("%d - ", hc);
+  // printf("\nheight: %d\nwidth: %d\n",h,w);
 
-  while (hc < h) {
+  fgetc(stream); // removes excessive EOL caracter before array start
+  // printf("%d - ", row);
+
+  while (row < h) {
     c = fgetc(stream);
-    printf("%c", c);
+    // printf("%c", c);
 
     if (c == '\n' || c == '\r' || c == EOF) {
-      hc++;
-      printf("%d - ", hc);
+      row++;
+      col = 0;
+      continue;
+      // printf("%d - ", row);
     }
 
-    cc++;
+    map[row][col] = c;
+    col++;
+
+    // cc++;
+  }
+
+  for (int i=0; i<h; i++) {
+    printf("%d - ", i);
+    for (int j=0; j<w; j++) {
+      printf("%c", map[i][j]);
+    }
+    printf("\n");
   }
 
   fclose(stream);
 
-  printf("\n\ncount: %d", cc);
+  // printf("\n\ncount: %d", cc);
 }
