@@ -37,15 +37,21 @@ void main(void) {
     // cc++;
   }
 
+  fclose(stream);
+
+  FILE *write_file = fopen("./generated_map.txt", "w");
+
   for (int i=0; i<h; i++) {
-    printf("%d - ", i);
+    // printf("%d - ", i);
     for (int j=0; j<w; j++) {
-      printf("%c", map[i][j]);
+      // printf("%c", map[i][j]);
+      fputc(map[i][j], write_file);
     }
-    printf("\n");
+    fputc('\n', write_file);
+    // printf("\n");
   }
 
-  fclose(stream);
+  fclose(write_file);
 
   // printf("\n\ncount: %d", cc);
 }
