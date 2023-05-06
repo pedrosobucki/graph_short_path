@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 // DEFINES STRUCTS
 
@@ -58,21 +59,21 @@ int dequeue(Queue* queue) {
   return target->val;
 }
 
-// Harbors
+// Harbor*s
 typedef struct Harbor {
   int num, target, weight, r, c;
 } Harbor;
 
-Harbor new_harbor(int num, int r, int c) {
-  Harbor h;
-  h.num = num;
-  h.target = num+1;
-  h.weight = 0;
-  h.r = r;
-  h.c = c;
+Harbor* new_harbor(int num, int r, int c) {
+  Harbor* h = malloc(sizeof(Harbor));
+  h->num = num;
+  h->target = num+1;
+  h->weight = 0;
+  h->r = r;
+  h->c = c;
 
   if (num == 9) {
-    h.target = 1;
+    h->target = 1;
   }
 
   // printf("-%d-\n",h.num);
@@ -83,7 +84,7 @@ Harbor new_harbor(int num, int r, int c) {
 void main(void) {
   char c;
   int cc, row, col = 0;
-  Harbor harbors[9];
+  Harbor* harbors[9];
 
   FILE *stream = fopen("./test_cases/caso01.txt", "r");
 
@@ -92,6 +93,7 @@ void main(void) {
   fscanf (stream, "%d", &w);
 
   char map[h][w];
+  bool marked[h][w];
 
   // printf("\nheight: %d\nwidth: %d\n",h,w);
 
@@ -122,12 +124,14 @@ void main(void) {
   }
   fclose(stream);
 
-  // // PRINTS HARBOR DATA
-  // printf("\n\nHARBORS:\n");
-  // for (int i=0; i<9; i++) {
-  //   Harbor h = harbors[i];
-  //   printf("%d: %d -> %d in [%d,%d]\n",i,h.num, h.target, h.r, h.c);
-  // }
+  // PRINTS HARBOR DATA
+  printf("\n\nHARBORS:\n");
+  for (int i=0; i<9; i++) {
+    Harbor* h = harbors[i];
+    printf("%d: %d -> %d in [%d,%d]\n",i,h->num, h->target, h->r, h->c);
+  }
+  // int size = sizeof(harbors);
+  // printf("\nsize: %d", size);
 
   // iterates over harbor list
   Queue* qr = new_queue();
