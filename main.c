@@ -3,6 +3,57 @@
 #include <stdint.h>
 #include <string.h>
 
+typedef struct Node {
+  int val;
+  struct Node* next;
+} Node;
+
+typedef struct Queue {
+  Node *front, *rear;
+} Queue;
+
+Node* new_node(int val) {
+  Node* nn = malloc(sizeof(Node));
+  nn->val = val;
+  nn->next = NULL;
+
+  return nn;
+}
+
+Queue* new_queue(){
+  Queue* q = malloc(sizeof(Queue));
+  q->front = q->rear = NULL;
+  return q;
+}
+
+void enqueue(Queue* queue, int val) {
+  Node* nn = new_node(val);
+
+  if (queue->rear == NULL) {
+    queue->rear = queue->front = nn;
+    return;
+  }
+
+  queue->rear->next = nn;
+  queue->rear = nn;
+}
+
+int dequeue(Queue* queue) {
+  if (queue->front == NULL) {
+    return;
+  }
+
+  Node* target = queue->front;
+  queue->front = target->next;
+
+  if (queue->front == NULL) {
+    queue->rear = NULL;
+  }
+
+  free(target);
+  return target->val;
+}
+
 void main(void) {
   char c;
   int cc, row, col = 0;
