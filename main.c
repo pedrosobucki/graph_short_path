@@ -2,7 +2,11 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <ctype.h>
 
+// DEFINES STRUCTS
+
+// Queue
 typedef struct Node {
   int val;
   struct Node* next;
@@ -40,7 +44,7 @@ void enqueue(Queue* queue, int val) {
 
 int dequeue(Queue* queue) {
   if (queue->front == NULL) {
-    return;
+    return -1;
   }
 
   Node* target = queue->front;
@@ -54,9 +58,32 @@ int dequeue(Queue* queue) {
   return target->val;
 }
 
+// Harbors
+typedef struct Harbor {
+  int num, target, weight, r, c;
+} Harbor;
+
+Harbor new_harbor(int num, int r, int c) {
+  Harbor h;
+  h.num = num;
+  h.target = num+1;
+  h.weight = 0;
+  h.r = r;
+  h.c = c;
+
+  if (num == 9) {
+    h.target = 1;
+  }
+
+  // printf("-%d-\n",h.num);
+  return h;
+}
+
+// RUNS MAIN CODE
 void main(void) {
   char c;
   int cc, row, col = 0;
+  Harbor harbors[9];
 
   FILE *stream = fopen("./test_cases/caso01.txt", "r");
 
@@ -82,14 +109,28 @@ void main(void) {
       // printf("%d - ", row);
     }
 
+    // STORES HARBOR DATA  
+    if (isdigit(c)) {
+      int num = c - '0'; //casts number to int
+      harbors[num-1] = new_harbor(num, row, col);
+    }
+
     map[row][col] = c;
     col++;
 
     // cc++;
   }
-
   fclose(stream);
 
+  // // PRINTS HARBOR DATA
+  // printf("\n\nHARBORS:\n");
+  // for (int i=0; i<9; i++) {
+  //   Harbor h = harbors[i];
+  //   printf("%d: %d -> %d in [%d,%d]\n",i,h.num, h.target, h.r, h.c);
+  // }
+
+
+  // PRINT MAP TO FILE
   FILE *write_file = fopen("./generated_map.txt", "w");
 
   for (int i=0; i<h; i++) {
