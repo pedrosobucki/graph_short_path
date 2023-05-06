@@ -129,6 +129,15 @@ void main(void) {
   //   printf("%d: %d -> %d in [%d,%d]\n",i,h.num, h.target, h.r, h.c);
   // }
 
+  // iterates over harbor list
+  Queue* qr = new_queue();
+  Queue* qc = new_queue();
+  for (int i=0; i<9; i++) {
+    
+    // while (cc < h)
+
+  }
+
 
   // PRINT MAP TO FILE
   FILE *write_file = fopen("./generated_map.txt", "w");
