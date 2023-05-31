@@ -80,19 +80,23 @@ void explore_neighbors(int r, int c, int target, int marked[][w], char map[][w])
     int rr = r + dr[j];
     int cc = c + dc[j];
 
-    char cell = map[rr][cc];
-
     // int found2 = marked[4][11];
 
     // printf("\nexploring %d,%d: %c\n", r, c, cell);
     // if (cell - '0' == target)
     //   printf("Found \"%d\" at [%d,%d]", target,rr,cc);
 
-    if (rr < 0 || rr >= h || cc < 0 || cc >= w)
+    if (rr < 0 || rr >= h || cc < 0 || cc >= w) {
+      // printf("\t- Found missplacement at: [%d,%d]\n", r,c);
       continue;
+    }
 
-    if (marked[rr][cc] == 1 || cell == '*')
+    char cell = map[rr][cc];
+
+    if (marked[rr][cc] == 1 || cell == '*') {
+      // printf("\t * [%d,%d](%c) marked!\n", rr, cc, cell);
       continue;
+    }
 
     marked[rr][cc] = 1;
 
@@ -116,13 +120,18 @@ Harbor* new_harbor(int r, int c) {
 }
 
 // RUNS MAIN CODE
-void main(void) {
+void main(int argc, char *argv[]) {
   char c;
   int cc, row, col = 0;
   Harbor* harbors[9];
   int distance[9];
 
-  FILE *stream = fopen("./test_cases/caso00.txt", "r");
+  char filename[23];
+  strcpy(filename, "./test_cases/caso") ;
+  strcat(filename, argv[1]) ;
+  strcat(filename, ".txt") ;
+
+  FILE *stream = fopen(filename, "r");
 
   fscanf (stream, "%d", &h);
   fscanf (stream, "%d", &w);
@@ -170,17 +179,23 @@ void main(void) {
   int hr, hc;
   int acc = 1;
   int target = 1;
+  int marked[h][w];
+
 
   // foreach Harbor
   for (int i=0; i<9;) {
     Harbor* har = harbors[i];
-    int marked[h][w];
-    // marked[4][11] = false;
+    memset(marked, 0, sizeof(marked));//resets marked array
+    
     bool found = false;
     int move_count = 0;
     int nodes_left_in_layer = 1;
 
-    target++;
+    if (target < 9) {
+      target++;
+    } else {
+      target = 1;
+    }
 
     qr = new_queue();
     qc = new_queue();
@@ -225,7 +240,7 @@ void main(void) {
 
     acc++;
 
-    if (target > 9) {
+    if (target == 1) {
       break;
     }
 
