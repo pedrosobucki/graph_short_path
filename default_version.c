@@ -67,40 +67,42 @@ bool is_empty(Queue* queue) {
 }
 
 // GLOBAL VARIABLES
-int h, w, nodes_in_next_layer;
+int h, w;
 Queue* qr;
 Queue* qc;
 
 int dr[4] = {0, 1, 0, -1};
 int dc[4] = {-1, 0, 1, 0};
 
-void explore_neighbors(int r, int c, int target, int marked[][w], char map[][w]) {
+bool explore_neighbors(int target, bool marked[][w], char map[][w]) {
   for (int j=0; j<4; j++) {
+
+    int r = dequeue(qr);
+    int c = dequeue(qc);
 
     int rr = r + dr[j];
     int cc = c + dc[j];
 
     char cell = map[rr][cc];
 
-    // int found2 = marked[4][11];
-
-    // printf("\nexploring %d,%d: %c\n", r, c, cell);
-    // if (cell - '0' == target)
-    //   printf("Found \"%d\" at [%d,%d]", target,rr,cc);
+    printf("\nexploring %d,%d: %c.\n", r, c, cell);
 
     if (rr < 0 || rr >= h || cc < 0 || cc >= w)
       continue;
 
-    if (marked[rr][cc] == 1 || cell == '*')
+    if (marked[rr][cc] || cell == '#')
       continue;
 
-    marked[rr][cc] = 1;
+    marked[rr][cc] = true;
+
+    if (cell - '0' == target)
+      return  true;
 
     enqueue(qr, rr);
     enqueue(qc, cc);
-
-    nodes_in_next_layer++;
   }
+
+  return false;
 }
 
 typedef struct Harbor {
@@ -119,15 +121,17 @@ Harbor* new_harbor(int r, int c) {
 void main(void) {
   char c;
   int cc, row, col = 0;
+  bool finished_harbors[9] = {false, false, false, false, false, false, false, false, false};
   Harbor* harbors[9];
   int distance[9];
 
-  FILE *stream = fopen("./test_cases/caso00.txt", "r");
+  FILE *stream = fopen("./test_cases/caso01.txt", "r");
 
   fscanf (stream, "%d", &h);
   fscanf (stream, "%d", &w);
 
   char map[h][w];
+  bool marked[h][w];
 
   // printf("\nheight: %d\nwidth: %d\n",h,w);
 
@@ -162,59 +166,33 @@ void main(void) {
   printf("\n\nHARBORS:\n");
   for (int i=0; i<9; i++) {
     Harbor* harb = harbors[i];
-    // printf("%d: %d -> [%d,%d]\n",i, (i+1), harb->r, harb->c);
+    printf("%d: %d -> [%d,%d]\n",i, (i+1), harb->r, harb->c);
   }
+  // int size = sizeof(harbors);
+  // printf("\nsize: %d", size);
 
-  // qr = new_queue();
-  // qc = new_queue();
+  // iterates over harbor list
+  qr = new_queue();
+  qc = new_queue();
   int hr, hc;
-  int acc = 1;
-  int target = 1;
+  int acc, target = 2;
 
   // foreach Harbor
   for (int i=0; i<9;) {
     Harbor* har = harbors[i];
-    int marked[h][w];
-    // marked[4][11] = false;
     bool found = false;
-    int move_count = 0;
-    int nodes_left_in_layer = 1;
-
-    target++;
-
-    qr = new_queue();
-    qc = new_queue();
-
     hr = har->r;
     hc = har->c;
 
-    nodes_in_next_layer = 0;
-    marked[hr][hc] = 1;
+    marked[hr][hc] = true;
 
     enqueue(qr, hr);
     enqueue(qc, hc);
 
-    printf("%d[%d,%d] searching for: %d\n---------------------\n", i + 1, hr, hc, target);
-    while (!is_empty(qr)) {
-      int r = dequeue(qr);
-      int c = dequeue(qc);
-
-      if (map[r][c] - '0' == target) {
-        found = true;
-        printf("\n********************\nfound at %dx%d in layer %d\n", r,c, move_count);
-        printf("proof: %c\n*********************\n", map[r][c]);
-        break;
-      }
-
-      explore_neighbors(r, c, target, marked, map);
-      nodes_left_in_layer--;
-
-      if (nodes_left_in_layer == 0) {
-        nodes_left_in_layer = nodes_in_next_layer;
-        nodes_in_next_layer = 0;
-        move_count++;
-      }
-
+    printf("searching for: %d\n---------------------\n", target);
+    while (!found && !is_empty(qr)) {
+      found = explore_neighbors(target, marked, map);
+      printf("found: %d & empty:%d\n", found, is_empty(qr));
     }
     printf("\n---------------------\n\n\n");
 
@@ -223,9 +201,9 @@ void main(void) {
       acc = 0;
     }
 
-    acc++;
+    target = i + acc++;
 
-    if (target > 9) {
+    if (target >= 9) {
       break;
     }
 
