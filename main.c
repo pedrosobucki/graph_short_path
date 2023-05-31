@@ -74,7 +74,7 @@ Queue* qc;
 int dr[4] = {0, 1, 0, -1};
 int dc[4] = {-1, 0, 1, 0};
 
-void explore_neighbors(int r, int c, int target, int marked[][w], char map[][w]) {
+void explore_neighbors(int r, int c, int target, bool marked[][w], char map[][w]) {
   for (int j=0; j<4; j++) {
 
     int rr = r + dr[j];
@@ -168,19 +168,20 @@ void main(int argc, char *argv[]) {
   fclose(stream);
 
   // PRINTS HARBOR DATA
-  printf("\n\nHARBORS:\n");
-  for (int i=0; i<9; i++) {
-    Harbor* harb = harbors[i];
+  // printf("\n\nHARBORS:\n");
+  // for (int i=0; i<9; i++) {
+  //   Harbor* harb = harbors[i];
     // printf("%d: %d -> [%d,%d]\n",i, (i+1), harb->r, harb->c);
-  }
+  // }
 
   // qr = new_queue();
   // qc = new_queue();
   int hr, hc;
   int acc = 1;
   int target = 1;
-  int marked[h][w];
-
+  bool marked[h][w];
+  int fuel_needed = 0;
+  
 
   // foreach Harbor
   for (int i=0; i<9;) {
@@ -234,6 +235,7 @@ void main(int argc, char *argv[]) {
     printf("\n---------------------\n\n\n");
 
     if (found == true) {
+      fuel_needed += move_count;
       i += acc;
       acc = 0;
     }
@@ -248,6 +250,7 @@ void main(int argc, char *argv[]) {
     // printf("current: %d\ntarget:%d\n", i, target);
   }
 
+  printf("total fuel needed: %d", fuel_needed);
 
   // PRINT MAP TO FILE
   FILE *write_file = fopen("./generated_map.txt", "w");
