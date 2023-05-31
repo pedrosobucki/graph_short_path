@@ -71,35 +71,31 @@ int h, w, nodes_in_next_layer;
 Queue* qr;
 Queue* qc;
 
+// moddifiers for neighbors navigation
 int dr[4] = {0, 1, 0, -1};
 int dc[4] = {-1, 0, 1, 0};
 
+// checls if neighbors (up, down, left, right) are traversable and new paths, if so, adds them to queue for navigation
 void explore_neighbors(int r, int c, int target, bool marked[][w], char map[][w]) {
   for (int j=0; j<4; j++) {
 
     int rr = r + dr[j];
     int cc = c + dc[j];
 
-    // int found2 = marked[4][11];
-
-    // printf("\nexploring %d,%d: %c\n", r, c, cell);
-    // if (cell - '0' == target)
-    //   printf("Found \"%d\" at [%d,%d]", target,rr,cc);
-
-    if (rr < 0 || rr >= h || cc < 0 || cc >= w) {
-      // printf("\t- Found missplacement at: [%d,%d]\n", r,c);
+    // skips if is offset
+    if (rr < 0 || rr >= h || cc < 0 || cc >= w)
       continue;
-    }
 
     char cell = map[rr][cc];
 
-    if (marked[rr][cc] == 1 || cell == '*') {
-      // printf("\t * [%d,%d](%c) marked!\n", rr, cc, cell);
+    // skips if is already marked or is not traversable
+    if (marked[rr][cc] == 1 || cell == '*') 
       continue;
-    }
 
+    // marks cell
     marked[rr][cc] = 1;
 
+    // queues cell
     enqueue(qr, rr);
     enqueue(qc, cc);
 
@@ -124,8 +120,8 @@ void main(int argc, char *argv[]) {
   char c;
   int cc, row, col = 0;
   Harbor* harbors[9];
-  int distance[9];
 
+  // selects test case file
   char filename[23];
   strcpy(filename, "./test_cases/caso") ;
   strcat(filename, argv[1]) ;
@@ -133,25 +129,23 @@ void main(int argc, char *argv[]) {
 
   FILE *stream = fopen(filename, "r");
 
+  // stores graph height and width
   fscanf (stream, "%d", &h);
   fscanf (stream, "%d", &w);
 
+  // allocates memory for graph
   char map[h][w];
 
-  // printf("\nheight: %d\nwidth: %d\n",h,w);
-
   fgetc(stream); // removes excessive EOL caracter before array start
-  // printf("%d - ", row);
 
+  // populates graph
   while (row < h) {
     c = fgetc(stream);
-    // printf("%c", c);
 
     if (c == '\n' || c == '\r' || c == EOF) {
       row++;
       col = 0;
       continue;
-      // printf("%d - ", row);
     }
 
     // STORES HARBOR DATA  
@@ -162,34 +156,22 @@ void main(int argc, char *argv[]) {
 
     map[row][col] = c;
     col++;
-
-    // cc++;
   }
   fclose(stream);
 
-  // PRINTS HARBOR DATA
-  // printf("\n\nHARBORS:\n");
-  // for (int i=0; i<9; i++) {
-  //   Harbor* harb = harbors[i];
-    // printf("%d: %d -> [%d,%d]\n",i, (i+1), harb->r, harb->c);
-  // }
-
-  // qr = new_queue();
-  // qc = new_queue();
   int hr, hc;
   int acc = 1;
   int target = 1;
   bool marked[h][w];
   int fuel_needed = 0;
-  
 
   // foreach Harbor
   for (int i=0; i<9;) {
     Harbor* har = harbors[i];
-    memset(marked, 0, sizeof(marked));//resets marked array
+    memset(marked, 0, sizeof(marked)); // sets all cells as 'unmarked'
     
     bool found = false;
-    int move_count = 0;
+    int harbor_travel_distance = 0;
     int nodes_left_in_layer = 1;
 
     if (target < 9) {
@@ -198,6 +180,7 @@ void main(int argc, char *argv[]) {
       target = 1;
     }
 
+    // starts empty queue 
     qr = new_queue();
     qc = new_queue();
 
@@ -205,67 +188,79 @@ void main(int argc, char *argv[]) {
     hc = har->c;
 
     nodes_in_next_layer = 0;
+
+    // marks harbor as traversed
     marked[hr][hc] = 1;
 
+    // queues harbor for traversing
     enqueue(qr, hr);
     enqueue(qc, hc);
 
-    printf("%d[%d,%d] searching for: %d\n---------------------\n", i + 1, hr, hc, target);
+    // printf("%d[%d,%d] searching for: %d\n---------------------\n", i + 1, hr, hc, target);
+
     while (!is_empty(qr)) {
+
+      // retrieves current node coordinates
       int r = dequeue(qr);
       int c = dequeue(qc);
 
+      // if current node is target harbor, stops queue iteration
       if (map[r][c] - '0' == target) {
         found = true;
-        printf("\n********************\nfound at %dx%d in layer %d\n", r,c, move_count);
-        printf("proof: %c\n*********************\n", map[r][c]);
+        // printf("\n********************\nfound at %dx%d in layer %d\n", r,c, harbor_travel_distance);
+        // printf("proof: %c\n*********************\n", map[r][c]);
         break;
       }
 
+      // adds valid path neighbors to queue
       explore_neighbors(r, c, target, marked, map);
       nodes_left_in_layer--;
 
+      // if all nodes in layer have been analysed, reset data and move to next layer
       if (nodes_left_in_layer == 0) {
         nodes_left_in_layer = nodes_in_next_layer;
         nodes_in_next_layer = 0;
-        move_count++;
+        harbor_travel_distance++;
       }
 
     }
-    printf("\n---------------------\n\n\n");
+    // printf("\n---------------------\n\n\n");
 
+    // actions if path id found between two harbors
     if (found == true) {
-      fuel_needed += move_count;
+      // updates total fuel needed for travel
+      fuel_needed += harbor_travel_distance;
+
+      // sets next available harbor for travel
       i += acc;
       acc = 0;
     }
 
     acc++;
 
+    // stops iteration when ship has returned home
     if (target == 1) {
       break;
     }
 
-    // printf("weight: %d");
-    // printf("current: %d\ntarget:%d\n", i, target);
+    free(qr);
+    free(qc);
   }
 
-  printf("total fuel needed: %d", fuel_needed);
+  printf("total fuel needed: %d.\n\n", fuel_needed);
 
-  // PRINT MAP TO FILE
-  FILE *write_file = fopen("./generated_map.txt", "w");
+  // // PRINT MAP TO FILE
+  // FILE *write_file = fopen("./generated_map.txt", "w");
 
-  for (int i=0; i<h; i++) {
-    // printf("%d - ", i);
-    for (int j=0; j<w; j++) {
-      // printf("%c", map[i][j]);
-      fputc(map[i][j], write_file);
-    }
-    fputc('\n', write_file);
-    // printf("\n");
-  }
+  // for (int i=0; i<h; i++) {
+  //   // printf("%d - ", i);
+  //   for (int j=0; j<w; j++) {
+  //     // printf("%c", map[i][j]);
+  //     fputc(map[i][j], write_file);
+  //   }
+  //   fputc('\n', write_file);
+  //   // printf("\n");
+  // }
 
-  fclose(write_file);
-
-  // printf("\n\ncount: %d", cc);
+  // fclose(write_file);
 }
